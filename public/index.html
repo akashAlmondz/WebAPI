@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.css' rel='stylesheet' />
+
+    <title>web api</title>
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 10px;left:0; bottom: 0; width:100%; }
+        #info {
+                display: table;
+                position: relative;
+                margin: 0px auto;
+                word-wrap: anywhere;
+                white-space: pre-wrap;
+                padding: 10px;
+                border: none;
+                border-radius: 3px;
+                font-size: 12px;
+                text-align: center;
+                color: #222;
+                background: #fff;
+        }
+        /* .mapboxgl-canvas{
+            display: flex;align-items: center;justify-content: center;padding: 50px 0 50px 0; padding-bottom: 100px;
+        } */
+        </style>
+</head>
+<body>
+    <div id='map'></div>
+    <pre id="info"></pre>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoidGVzdGluZ2FsbW9uZHoiLCJhIjoiY2t3ZzZlYnlwMGxlcTJ1cXZ3cDM1ZDZ5ZCJ9.LTpVQRAL-OhcTw1lgQlgJg';
+        const map = new mapboxgl.Map({
+        container: 'map', // container ID
+        style: 'mapbox://styles/mapbox/streets-v11', // style URL
+        center: [77.2664587, 28.5366411], // starting position [lng, lat]
+        zoom: 9 // starting zoom
+        });
+        map.on('style.load', function() {
+        map.on('click', function(e) {
+            var coordinates = e.lngLat;
+            new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML('you clicked here: <br/>' + coordinates)
+            .addTo(map);
+  })});
+        </script>
+
+    <script src="js/map.js"></script>
+</body>
+</html> 

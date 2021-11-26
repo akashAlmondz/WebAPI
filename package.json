@@ -1,0 +1,22 @@
+{
+  "name": "web-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "almondz",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mapbox-gl": "^2.6.1",
+    "mongoose": "^6.0.13",
+    "node-fetch": "^1.7.3",
+    "node-geocoder": "^3.28.0",
+    "nodemon": "^2.0.15"
+  }
+}
