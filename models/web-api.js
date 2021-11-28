@@ -20,11 +20,11 @@ const webSchema= new mongoose.Schema({
     location: {
         type: {
           type: String, 
-          enum: ['Point'], 
+          enum: ['Polygon'], 
         
         },
         coordinates: {
-          type: [Number],
+          type: [[[Number]]],
           index:'2dsphere',
         },
         formattedAddress:String

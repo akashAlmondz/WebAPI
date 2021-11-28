@@ -1,58 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    
-<script src='https://api.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.js'></script>
-<link href='https://api.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.css' rel='stylesheet' />
-
-    <title>web api</title>
-    <style>
-        body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 10px;left:0; bottom: 0; width:100%; }
-        #info {
-                display: table;
-                position: relative;
-                margin: 0px auto;
-                word-wrap: anywhere;
-                white-space: pre-wrap;
-                padding: 10px;
-                border: none;
-                border-radius: 3px;
-                font-size: 12px;
-                text-align: center;
-                color: #222;
-                background: #fff;
-        }
-        /* .mapboxgl-canvas{
-            display: flex;align-items: center;justify-content: center;padding: 50px 0 50px 0; padding-bottom: 100px;
-        } */
-        </style>
+<meta charset="utf-8">
+<title>Draw a polygon and calculate its area</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 20px; bottom: 0; width: 100%; }
+</style>
 </head>
 <body>
-    <div id='map'></div>
-    <pre id="info"></pre>
-    <script>
-        mapboxgl.accessToken = 'pk.eyJ1IjoidGVzdGluZ2FsbW9uZHoiLCJhIjoiY2t3ZzZlYnlwMGxlcTJ1cXZ3cDM1ZDZ5ZCJ9.LTpVQRAL-OhcTw1lgQlgJg';
-        const map = new mapboxgl.Map({
+<style>
+   
+    .calculation-box {
+        height: 75px;
+        width: 200px;
+        position: absolute;
+        bottom: 40px;
+        left: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 15px;
+        text-align: center;
+    }
+
+    p {
+        font-family: 'Open Sans';
+        margin: 0;
+        font-size: 13px;
+    }
+</style>
+
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.2/mapbox-gl-draw.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.2/mapbox-gl-draw.css" type="text/css">
+<div id="map"></div>
+<div class="calculation-box">
+    <p>Click the map to draw a polygon.</p>
+    <div id="calculated-area"></div>
+</div>
+
+<script>
+	// TO MAKE THE MAP APPEAR YOU MUST
+	// ADD YOUR ACCESS TOKEN FROM
+	// https://account.mapbox.com
+	mapboxgl.accessToken = 'pk.eyJ1IjoidGVzdGluZ2FsbW9uZHoiLCJhIjoiY2t3ZzZlYnlwMGxlcTJ1cXZ3cDM1ZDZ5ZCJ9.LTpVQRAL-OhcTw1lgQlgJg';
+    const map = new mapboxgl.Map({
         container: 'map', // container ID
         style: 'mapbox://styles/mapbox/streets-v11', // style URL
         center: [77.2664587, 28.5366411], // starting position [lng, lat]
-        zoom: 9 // starting zoom
-        });
-        map.on('style.load', function() {
-        map.on('click', function(e) {
-            var coordinates = e.lngLat;
-            new mapboxgl.Popup()
-            .setLngLat(coordinates)
-            .setHTML('you clicked here: <br/>' + coordinates)
-            .addTo(map);
-  })});
-        </script>
+        zoom: 12 // starting zoom
+    });
 
-    <script src="js/map.js"></script>
+    const draw = new MapboxDraw({
+        displayControlsDefault: false,
+        // Select which mapbox-gl-draw control buttons to add to the map.
+        controls: {
+            polygon: true,
+            trash: true
+        },
+        // Set mapbox-gl-draw to draw by default.
+        // The user does not have to click the polygon control button first.
+        defaultMode: 'draw_polygon'
+    });
+    map.addControl(draw);
+
+    map.on('draw.create', updateArea);
+    map.on('draw.delete', updateArea);
+    map.on('draw.update', updateArea);
+    
+    
+    function updateArea(e) {
+        const data = draw.getAll();
+        const answer = document.getElementById('calculated-area');
+        if (data.features.length > 0) {
+            const area = turf.area(data);
+            let centroid = turf.centroid(data);
+            var options= {steps: 10, units: 'kilometers', properties: {foo: 'bar'}};
+            var center = [centroid.geometry.coordinates[1],centroid.geometry.coordinates[0]];
+           var radius = 5;
+          var options = {steps: 50, units: 'kilometers', properties: {foo: 'bar'}};
+        var circle = turf.circle(center, radius, options);
+        map.addSource("circleData", {
+      type: "geojson",
+      data:circle,
+    });
+
+map.addLayer({
+      id: "map",
+      type: "fill",
+      source: "circleData",
+      paint: {
+        "fill-color": "yellow",
+        "fill-opacity": 0.2,
+      },
+    });
+
+
+
+            // Restrict the area to 2 decimal points.
+            const rounded_area = Math.round(area * 100) / 100;
+            answer.innerHTML = `<p><strong>Centroid: <br />
+            ${centroid.geometry.coordinates[1]},${centroid.geometry.coordinates[0]}</strong></p>`;
+           
+            
+        } else {
+            answer.innerHTML = '';
+            if (e.type !== 'draw.delete')
+                alert('Click the map to draw a polygon.');
+        }
+
+        
+    }
+</script>
+
 </body>
-</html> 
+</html>
