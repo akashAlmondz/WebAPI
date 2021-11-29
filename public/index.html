@@ -35,6 +35,7 @@ body { margin: 0; padding: 0; }
 <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.2/mapbox-gl-draw.js"></script>
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.2/mapbox-gl-draw.css" type="text/css">
+
 <div id="map"></div>
 <div class="calculation-box">
     <p>Click the map to draw a polygon.</p>
@@ -42,9 +43,12 @@ body { margin: 0; padding: 0; }
 </div>
 
 <script>
+
 	// TO MAKE THE MAP APPEAR YOU MUST
 	// ADD YOUR ACCESS TOKEN FROM
 	// https://account.mapbox.com
+
+    let polyCoord;
 	mapboxgl.accessToken = 'pk.eyJ1IjoidGVzdGluZ2FsbW9uZHoiLCJhIjoiY2t3ZzZlYnlwMGxlcTJ1cXZ3cDM1ZDZ5ZCJ9.LTpVQRAL-OhcTw1lgQlgJg';
     const map = new mapboxgl.Map({
         container: 'map', // container ID
@@ -73,29 +77,14 @@ body { margin: 0; padding: 0; }
     
     function updateArea(e) {
         const data = draw.getAll();
+        polyCoord = turf.coordAll(data);
+        localStorage.setItem('coordinates',JSON.stringify(polyCoord));
         const answer = document.getElementById('calculated-area');
         if (data.features.length > 0) {
             const area = turf.area(data);
             let centroid = turf.centroid(data);
-            var options= {steps: 10, units: 'kilometers', properties: {foo: 'bar'}};
             var center = [centroid.geometry.coordinates[1],centroid.geometry.coordinates[0]];
-           var radius = 5;
-          var options = {steps: 50, units: 'kilometers', properties: {foo: 'bar'}};
-        var circle = turf.circle(center, radius, options);
-        map.addSource("circleData", {
-      type: "geojson",
-      data:circle,
-    });
-
-map.addLayer({
-      id: "map",
-      type: "fill",
-      source: "circleData",
-      paint: {
-        "fill-color": "yellow",
-        "fill-opacity": 0.2,
-      },
-    });
+       
 
 
 
@@ -111,9 +100,11 @@ map.addLayer({
                 alert('Click the map to draw a polygon.');
         }
 
-        
+    
     }
+    
 </script>
-
+<!-- <script src="js/map.js"></script> -->
 </body>
+
 </html>

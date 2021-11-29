@@ -39,10 +39,12 @@ const webSchema= new mongoose.Schema({
 
 //GeoCoder & create location
 webSchema.pre('save', async function(next){
-    const loc =await geoCoder.geocode(this.address);
+    let data=JSON.parse(localStorage.getItem('coordinates'));
+   
+    // const loc =await geoCoder.geocode(this.address);
     this.location={
-        type:'Points',
-        coordinates:[loc[0].longitude,loc[0].latitude],
+        type:'Polygon',
+        coordinates:data,
 
     }
     next();
